@@ -1,0 +1,2 @@
+#+TITLE: Documentation of Daily-report project
+#+AUTHOR: Artin Ghasivand
