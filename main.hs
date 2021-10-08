@@ -30,24 +30,18 @@ allTimes :: [Topic] -> Time
 allTimes topicList = sum $ map getTime topicList
 
 
-topicPlusTime :: [Topic] -> [String]
-topicPlusTime topicList = map readable zipped
+-- takes either one of the getTime or getTests function and then returns a nice visual list
+-- of Strings
+topicAndQuant :: [Topic] -> (Topic -> Int) -> [String]
+topicAndQuant topicList f = map together zipped
   where names = map getTopic topicList
-        times = map getTime topicList
-        zipped = zip names times
-        readable = \pair -> show (fst pair) ++ " : " ++ show (snd pair)
+        quant = map f topicList
+        zipped = zip names quant
+        together = \pair -> show (fst pair) ++ " : " ++ show (snd pair)
 
-
-topicPlusTest :: [Topic] -> [String]
-topicPlusTest topicList = map readable zipped
-  where names = map getTopic topicList
-        tests = map getTests topicList
-        zipped = zip names tests
-        readable = \pair -> show (fst pair) ++ " : " ++ show (snd pair)
-
-
-percent :: Float -> Float -> Float
-percent c a = (((3*c) - wrong) / (3*a)) * 100
-  where wrong = a-c
+-- takes the nubmer of unsolved, wrong and all of the tests then computes the accurate score
+percent :: Float -> Float -> Float -> Float
+percent e w a = ((c - (w/3)) / a) * 100
+  where c = a - (e+w)
 
 --add comments and refactor duplicate code with new functions that take functions as arguments
