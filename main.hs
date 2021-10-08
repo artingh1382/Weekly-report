@@ -37,7 +37,7 @@ topicAndQuant topicList f = map together zipped
   where names = map getTopic topicList
         quant = map f topicList
         zipped = zip names quant
-        together = \pair -> show (fst pair) ++ " : " ++ show (snd pair)
+        together = \pair -> fst pair ++ " : " ++ show (snd pair)
 
 -- takes the nubmer of unsolved, wrong and all of the tests then computes the accurate score
 percent :: Float -> Float -> Float -> Float
