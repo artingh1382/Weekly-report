@@ -1,7 +1,8 @@
 import           Data.List
-import qualified Data.Map       as M
+import qualified Data.Map           as M
 import           Data.Monoid
 import           Data.Semigroup
+import           System.Environment
 
 -- using type synonyms to make type signatures help understand the transitions accuring in the function
 type Lesson = String
@@ -51,3 +52,23 @@ percent e w a = ((c - (w/3)) / a) * 100
   where c = a - (e+w)
 
 --add comments and refactor duplicate code with new functions that take functions as arguments
+--
+toFloat :: String -> Float
+toFloat x = (read x) :: Float
+
+main :: IO ()
+main = do
+    putStrLn "number of blank questions: "
+    blanks <- getLine
+    putStrLn "number of wrong questions: "
+    wrongs <- getLine
+    putStrLn "number of all the questions: "
+    all <- getLine
+    --let values = map toFloat [blanks, wrongs,  wrongs]
+    --let e = values !! 0
+    --let w = values !! 1
+    --let a = values !! 2
+    --let result = percent e w a
+    --print result
+
+
