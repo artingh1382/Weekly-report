@@ -53,8 +53,14 @@ percent e w a = ((c - (w/3)) / a) * 100
 
 --add comments and refactor duplicate code with new functions that take functions as arguments
 --
+toFloatIO :: String -> IO Float
+toFloatIO x = return float
+  where float = (read x) :: Float
+
 toFloat :: String -> Float
-toFloat x = (read x) :: Float
+toFloat x = read x :: Float
+
+-- TODO fix the IO Computation bug
 
 main :: IO ()
 main = do
@@ -64,11 +70,11 @@ main = do
     wrongs <- getLine
     putStrLn "number of all the questions: "
     all <- getLine
-    --let values = map toFloat [blanks, wrongs,  wrongs]
-    --let e = values !! 0
-    --let w = values !! 1
-    --let a = values !! 2
-    --let result = percent e w a
-    --print result
+    let values = map toFloat [blanks, wrongs, all]
+    let e = values !! 0
+    let w = values !! 1
+    let a = values !! 2
+    let result = percent e w a
+    print result
 
 
