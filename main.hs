@@ -9,14 +9,17 @@ type Lesson = String
 type Time = Int
 type Tests = Int
 
+data Books = Dis | Phy | Cal | Geo | Che | Theo | Ara | Lit deriving (Show, Eq)
+
+data Days = Sat | Sun | Mon | Tue | Wed | Thu | Fri deriving (Show, Eq)
+
 data Topic = Topic Lesson Time Tests
 
--- a function that takes a String and two Lists of Integer then returns a Topic
-lesson :: Lesson -> [Time] -> [Tests] -> Topic
-lesson topic time tests = (Topic topic aTime aTests)
-  where aTime= sum time
-        aTests = sum tests
 
+lesson :: Lesson -> [(Time,Tests)] -> Topic
+lesson topic list = Topic topic times tests
+  where times = sum $ map (\pair -> fst pair) list
+        tests = sum $ map (\pair -> snd pair) list
 
 -- gets the Lesson (String)
 getTopic :: Topic -> Lesson
@@ -39,12 +42,20 @@ allQuant topicList f = sum $ map f topicList
 
 -- takes either one of the getTime or getTests function and then returns a nice visual list
 -- of Strings
+-- TODO rewrite the functoin to print out output like this: Calculus| 180 Minutes == 3 Hours
 topicAndQuant :: [Topic] -> (Topic -> Int) -> [String]
 topicAndQuant topicList f = map together zipped
   where names = map getTopic topicList
         quant = map f topicList
         zipped = zip names quant
         together = \pair -> fst pair ++ " : " ++ show (snd pair)
+
+--topicAndQuant :: [Topic] -> (Topic -> Int) -> String
+--topicAndQuant topicList f = mconcat $ map together zipped
+--  where names = map getTopic topicList
+--        quant = map f topicList
+--        zipped = zip names quant
+--        together = \pair -> fst pair ++ "| " ++ show (snd pair) ++ "\n"
 
 -- takes the nubmer of unsolved, wrong and all of the tests then computes the accurate score
 percent :: Float -> Float -> Float -> Float

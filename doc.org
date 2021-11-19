@@ -1,2 +1,10 @@
 #+TITLE: Documentation of Daily-report project
 #+AUTHOR: Artin Ghasivand
+
+* Program to calculate and write a report
+
+* IDEA implementation:
+1. user writes the the name of the topic, his performance in it, the time he/she has studied and the questions he has solved in plain txt files.
+2. the code parses the txt file and then does the computations needed.
+3. data gets converted into readable format with color coding, then gets written in a xlsx file.
+4. the code compiles
