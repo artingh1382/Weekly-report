@@ -1,6 +1,7 @@
 import           Data.List
 import           Data.List.Split
 import qualified Data.Map           as M
+import           Data.Maybe
 import           Data.Monoid
 import           Data.Semigroup
 import           System.Environment
@@ -72,6 +73,11 @@ instance Lex Books where
 showLex :: Show a => a -> String
 showLex lex = take 3 $ show lex
 
+
+justString :: Maybe String -> String
+justString (Just string) = string
+justString Nothing       = ""
+
 -- takes a Lesson and a list of Time,Tests tuple and then converts
 -- them into a Topic
 lesson :: Lesson -> [(Time,Tests)] -> Topic
@@ -127,8 +133,10 @@ toFloatIO :: String -> IO Float
 toFloatIO x = return float
   where float = read x :: Float
 
+
 toFloat :: String -> Float
 toFloat x = read x :: Float
+
 
 topicsInDays :: String -> [[String]]
 topicsInDays day = map (splitOn "&") $ lines day
@@ -138,8 +146,21 @@ stListToSt xs = foldr (++) [] xs
 
 --testList = [["My", "name", "is"], ["Barry", "Allen"], ["And", "I'm", "The"], ["Fastest", "man", "alive"]]
 
-parseFile :: FilePath -> [Topic]
-parseFile = undefined
+parseFile' :: String -> Maybe String
+parseFile' stream
+    | "Sat : " `isPrefixOf` stream = stripPrefix "Sat : " stream
+    | "Sun : " `isPrefixOf` stream = stripPrefix "Sun : " stream
+    | "Mon : " `isPrefixOf` stream = stripPrefix "Mon : " stream
+    | "Tue : " `isPrefixOf` stream = stripPrefix "Tue : " stream
+    | "Wed : " `isPrefixOf` stream = stripPrefix "Wed : " stream
+    | "Thu : " `isPrefixOf` stream = stripPrefix "Thu : " stream
+    | "Fri : " `isPrefixOf` stream = stripPrefix "Fri : " stream
+    | " " `isPrefixOf` stream = stripPrefix " " stream
+    | otherwise = Just stream
+
+
+parseFile :: [String] -> [String]
+parseFile stream = map justString $ map parseFile' stream
 
 main :: IO ()
 main = do
