@@ -10,18 +10,33 @@ type Lesson = String
 type Time = Int
 type Tests = Int
 
-data Books = Dis | Phy | Cal | Geo | Che | The | Ara | Lit deriving Eq
+data Books = Dis
+           | Phy
+           | Cal
+           | Geo
+           | Che
+           | The
+           | Ara
+           | Lit
+           deriving (Read,Eq)
 
-data Days = Sat | Sun | Mon | Tue | Wed | Thu | Fri deriving Eq
+
+data Days = Sat
+          | Sun
+          | Mon
+          | Tue
+          | Wed
+          | Thu
+          | Fri
+          deriving (Read,Eq)
+
 
 data Topic = Topic Lesson Time Tests | Empty
 
-data Lex = Sep | Days | Books deriving (Eq)
-
-
-class Parts a where
-  parse :: a -> Lex
+class Lex a where
+  parse :: String -> a
   convert :: a -> String
+
 
 instance Show Books where
   show Dis = "Discrete"
@@ -44,17 +59,21 @@ instance Show Days where
   show Fri = "Friday"
 
 
-instance Show Lex where
-  show Days  = show Days
-  show Books = show Books
-  show Sep   = "&"
+instance Lex Days where
+  parse day = read day :: Days
+  convert day = showLex day
 
 
+instance Lex Books where
+  parse book = read book :: Books
+  convert book = showLex book
 
-showLex' :: Lex -> String
-showLex' lex = take 3 $ show lex
 
+showLex :: Show a => a -> String
+showLex lex = take 3 $ show lex
 
+-- takes a Lesson and a list of Time,Tests tuple and then converts
+-- them into a Topic
 lesson :: Lesson -> [(Time,Tests)] -> Topic
 lesson topic list = Topic topic times tests
   where times = sum $ map (\pair -> fst pair) list
@@ -89,6 +108,7 @@ topicAndQuant topicList f = map together zipped
         zipped = zip names quant
         together pair = fst pair ++ " : " ++ show (snd pair)
 
+-- this function is an attempt to print and go to the next line
 --topicAndQuant :: [Topic] -> (Topic -> Int) -> String
 --topicAndQuant topicList f = mconcat $ map together zipped
 --  where names = map getTopic topicList
@@ -118,54 +138,11 @@ stListToSt xs = foldr (++) [] xs
 
 --testList = [["My", "name", "is"], ["Barry", "Allen"], ["And", "I'm", "The"], ["Fastest", "man", "alive"]]
 
---parseFile :: FilePath -> [Topic]
---parseFile file = do
---    handle <- readFile file
---    let parsed = lines file
-
-parser :: [String] -> [Lex]
-parser = undefined
-
-onlyTopics :: [String] -> [String]
-onlyTopics []   = []
-onlyTopics text = filter (/= " ") text
-
-
-stringToLex :: String -> Days
-stringToLex lex = case lex of
-    "Sat" -> Sat
-    "Sun" -> Sun
-    "Mon" -> Mon
-    "Tue" -> Tue
-    "Wed" -> Wed
-    "Thu" -> Thu
-    "Fri" -> Fri
-
+parseFile :: FilePath -> [Topic]
+parseFile = undefined
 
 main :: IO ()
 main = do
     file <- readFile "sample.txt"
     let parsed = stListToSt $ topicsInDays file
     mapM_ putStrLn parsed
-    --putStrLn file
-
-
-
--- TODO fix the IO Computation bug
-
---main :: IO ()
---main = do
---    putStrLn "number of blank questions: "
---    blanks <- getLine
---    putStrLn "number of wrong questions: "
---    wrongs <- getLine
---    putStrLn "number of all the questions: "
---    all <- getLine
---    let values = map toFloat [blanks, wrongs, all]
---    let e = values !! 0
---    let w = values !! 1
---    let a = values !! 2
---    let result = percent e w a
---    print result
-
-
