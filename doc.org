@@ -10,14 +10,20 @@
 4. the code compiles
 
 
-* IDEA features: [0/2]
+* IDEA features: [0/3]
 + [ ] using the Maybe type container to do safer computation
 + [ ] write the output into stdin and file
++ [ ] use the day data to show everyday in a beautiful way
 
 
-* TODO features: [/]
-+ [ ] get rid of the prenthesis in "(n,m)"
-+ [ ] convert a string of "(n,m)" into a tuple of (n,m)
+* TODO features: [5/7]
++ [X] get rid of the prenthesis in "(n,m)"
++ [X] convert a string of "(n,m)" into a tuple of (n,m)
++ [ ] make Topic an instance of Semigroup
++ [ ] implement the combineTopics function
++ [X] make Topic an instance of Monoid
++ [X] wrap stListToSt and topicsInDays into one function
++ [X] make topic an instance of Show type class
 
 
 * TODO cleaning: [5/5]

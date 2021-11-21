@@ -31,9 +31,30 @@ data Day = Sat
           | Fri
           deriving (Read,Eq)
 
-
+-- the Topic data type consists of a Lesson, Time (synonym of Int) and a "Tests" (synonym of Int)
 data Topic = Topic Lesson Time Tests | Empty
 
+
+combineTopics :: Topic -> Topic -> Topic
+combineTopics = undefined
+
+
+instance Show Topic where
+  show (Topic lesson time tests) = mconcat [show lesson, ": ", "\n"
+                                           , " ", "Time: ", show time, "\n"
+                                           , " ", "Tests: ", show tests, "\n"]
+
+
+instance Semigroup Topic where
+  (<>) topic1 topic2 = combineTopics topic1 topic2
+
+
+instance Monoid Topic where
+  mempty = Empty
+  mappend = (<>)
+
+-- the Lex type class represents all a way to parse and convert all
+-- of the possible lexicons in a file
 class Lex a where
   parse :: String -> a
   convert :: a -> String
@@ -69,7 +90,7 @@ instance Lex Lesson where
   parse lesson = read lesson:: Lesson
   convert lesson = showLex lesson
 
-
+-- takes the first 3 letter of the string version of our Lexicons
 showLex :: Show a => a -> String
 showLex lex = take 3 $ show lex
 
@@ -115,12 +136,11 @@ topicAndQuant topicList f = map together zipped
         together pair = fst pair ++ " : " ++ show (snd pair)
 
 -- this function is an attempt to print and go to the next line
---topicAndQuant :: [Topic] -> (Topic -> Int) -> String
---topicAndQuant topicList f = mconcat $ map together zipped
+--topicAndQuant2 :: [Topic] -> (Topic -> Int) -> String
+--topicAndQuant2 topicList f = map show
 --  where names = map getTopic topicList
 --        quant = map f topicList
---        zipped = zip names quant
---        together = \pair -> fst pair ++ "| " ++ show (snd pair) ++ "\n"
+--        string = mconcat [names, ": ", quant, "\n"]
 
 -- takes the nubmer of unsolved, wrong and all of the tests then computes the accurate score
 percent :: Float -> Float -> Float -> Float
@@ -137,15 +157,21 @@ toFloatIO x = return float
 toFloat :: String -> Float
 toFloat x = read x :: Float
 
-
+-- gets strings that end with new line charecter and then turnes splits them whenever it sees the new line charecter and then gets rid of all the seperators
 topicsInDays :: String -> [[String]]
 topicsInDays day = map (splitOn "&") $ lines day
 
+-- concatenates all the strings in the list together
 stListToSt :: Foldable t => t [a] -> [a]
 stListToSt xs = foldr (++) [] xs
 
---testList = [["My", "name", "is"], ["Barry", "Allen"], ["And", "I'm", "The"], ["Fastest", "man", "alive"]]
+-- gets a single string of topics, tuples and seperator then returnes
+-- a list of strings without the seperators
+cleanStream :: String -> [String]
+cleanStream = stListToSt . topicsInDays
 
+
+-- gets a string and gets rid of the day data and useless spaces
 parseFile' :: String -> Maybe String
 parseFile' stream
     | "Sat : " `isPrefixOf` stream = stripPrefix "Sat : " stream
@@ -158,11 +184,14 @@ parseFile' stream
     | " " `isPrefixOf` stream = stripPrefix " " stream
     | otherwise = Just stream
 
+-- gets a normal stream o
 parseFile :: [String] -> [[String]]
 parseFile stream = map words cleanStream
   where cleanStream = map justString $ map parseFile' stream
 
-
+-- sees if the string starts with "(" and if it does, we know that it's a string of tuple.
+-- for example "(2,24)" so it reverses the tuple, gets rid of the closing parenthesis, reverses it again
+-- and then gets rid off the opening parenthesis.
 getNumbers' :: String -> String
 getNumbers' stream
     | "(" `isPrefixOf` stream = justString $ stripPrefix "(" newStream
@@ -194,11 +223,13 @@ lessonsAndData streams = zip lessons ts
         intT =  map (map sToInt) $ map (splitOn ",") stringT
         ts = recTuple intT
 
-main :: IO ()
-main = do
-    file <- readFile "sample.txt"
-    let stream = stListToSt $ topicsInDays file
-    let parsed = parseFile stream
-    mapM_ mapm' parsed
 
-  where mapm' = mapM_ putStrLn
+main :: IO ()
+main = undefined
+--main = do
+--    file <- readFile "sample.txt"
+--    let stream = stListToSt $ topicsInDays file
+--    let parsed = parseFile stream
+--    mapM_ mapm' parsed
+--
+--  where mapm' = mapM_ putStrLn
