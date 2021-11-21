@@ -158,6 +158,10 @@ parseFile' stream
     | " " `isPrefixOf` stream = stripPrefix " " stream
     | otherwise = Just stream
 
+parseFile :: [String] -> [[String]]
+parseFile stream = map words cleanStream
+  where cleanStream = map justString $ map parseFile' stream
+
 
 getNumbers' :: String -> String
 getNumbers' stream
@@ -166,14 +170,29 @@ getNumbers' stream
 
   where newStream = reverse $ justString $ stripPrefix ")" $ reverse stream
 
-getNumbers :: [[String]] -> [[String]]
-getNumbers stream = undefined
+-- goes through the elements in a list and makes a tuple out of them
+-- WARNING: this function can be used only and only for lists containing lists that have 2 elements in them
+recTuple :: [[a]] -> [(a,a)]
+recTuple []     = []
+recTuple [[]]   = []
+recTuple (x:xs) = (head x, last x) : recTuple xs
 
 
-parseFile :: [String] -> [[String]]
-parseFile stream = map words cleanStream
-  where cleanStream = map justString $ map parseFile' stream
-
+-- gets a parsed stream for example [["Dis","(90,23)"], ..]
+-- gets rid of the parenthesis in "(90,23)" and returns "90,23"
+-- converts the lists into lists of Lessons and lists of (Time,Tests)
+-- then zips them together and returns them as a list
+lessonsAndData:: [[String]] -> [(Lesson,(Time,Tests))]
+lessonsAndData streams = zip lessons ts
+  where helperGet = map getNumbers'
+        cleaned = map helperGet streams
+        sToInt = read :: String -> Int
+        tuples = recTuple cleaned
+        stringLessons = map fst tuples
+        lessons = map parse stringLessons :: [Lesson]
+        stringT = map snd tuples
+        intT =  map (map sToInt) $ map (splitOn ",") stringT
+        ts = recTuple intT
 
 main :: IO ()
 main = do
