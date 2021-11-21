@@ -169,6 +169,7 @@ getNumbers' stream
 getNumbers :: [[String]] -> [[String]]
 getNumbers stream = undefined
 
+
 parseFile :: [String] -> [[String]]
 parseFile stream = map words cleanStream
   where cleanStream = map justString $ map parseFile' stream
