@@ -7,11 +7,11 @@ import           Data.Semigroup
 import           System.Environment
 
 -- using type synonyms to make type signatures help understand the transitions accuring in the function
-type Lesson = String
 type Time = Int
 type Tests = Int
 
-data Books = Dis
+-- new data type that represents all the topics I study in school
+data Lesson = Dis
            | Phy
            | Cal
            | Geo
@@ -21,8 +21,8 @@ data Books = Dis
            | Lit
            deriving (Read,Eq)
 
-
-data Days = Sat
+-- new data type consisting of all the days in the week
+data Day = Sat
           | Sun
           | Mon
           | Tue
@@ -39,7 +39,7 @@ class Lex a where
   convert :: a -> String
 
 
-instance Show Books where
+instance Show Lesson where
   show Dis = "Discrete"
   show Phy = "Physics"
   show Cal = "Calculus"
@@ -50,7 +50,7 @@ instance Show Books where
   show Lit = "Literature"
 
 
-instance Show Days where
+instance Show Day where
   show Sat = "Saturday"
   show Sun = "Sunday"
   show Mon = "Monday"
@@ -60,14 +60,14 @@ instance Show Days where
   show Fri = "Friday"
 
 
-instance Lex Days where
-  parse day = read day :: Days
+instance Lex Day where
+  parse day = read day :: Day
   convert day = showLex day
 
 
-instance Lex Books where
-  parse book = read book :: Books
-  convert book = showLex book
+instance Lex Lesson where
+  parse lesson = read lesson:: Lesson
+  convert lesson = showLex lesson
 
 
 showLex :: Show a => a -> String
@@ -86,8 +86,8 @@ lesson topic list = Topic topic times tests
         tests = sum $ map (\pair -> snd pair) list
 
 -- gets the Lesson (String)
-getTopic :: Topic -> Lesson
-getTopic (Topic topic _ _) = topic
+getTopic :: Topic -> String
+getTopic (Topic topic _ _) = show topic
 
 
 -- gets the Time (Int)
@@ -159,11 +159,26 @@ parseFile' stream
     | otherwise = Just stream
 
 
-parseFile :: [String] -> [String]
-parseFile stream = map justString $ map parseFile' stream
+getNumbers' :: String -> String
+getNumbers' stream
+    | "(" `isPrefixOf` stream = justString $ stripPrefix "(" newStream
+    | otherwise = stream
+
+  where newStream = reverse $ justString $ stripPrefix ")" $ reverse stream
+
+getNumbers :: [[String]] -> [[String]]
+getNumbers stream = undefined
+
+parseFile :: [String] -> [[String]]
+parseFile stream = map words cleanStream
+  where cleanStream = map justString $ map parseFile' stream
+
 
 main :: IO ()
 main = do
     file <- readFile "sample.txt"
-    let parsed = stListToSt $ topicsInDays file
-    mapM_ putStrLn parsed
+    let stream = stListToSt $ topicsInDays file
+    let parsed = parseFile stream
+    mapM_ mapm' parsed
+
+  where mapm' = mapM_ putStrLn

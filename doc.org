@@ -10,12 +10,19 @@
 4. the code compiles
 
 
-* IDEA features: [/]
+* IDEA features: [0/2]
 + [ ] using the Maybe type container to do safer computation
++ [ ] write the output into stdin and file
 
-* TODO cleaning: [0/5]
-+ [ ] change the lesson type synonym into the Books data type
-+ [ ] change the lesson function
-+ [ ] change the get_ functions
-+ [ ] change the topicAndQuant function
-+ [ ] change the allQuant function
+
+* TODO features: [/]
++ [ ] get rid of the prenthesis in "(n,m)"
++ [ ] convert a string of "(n,m)" into a tuple of (n,m)
+
+
+* TODO cleaning: [5/5]
++ [X] change the lesson type synonym into the Books data type
++ [X] change the lesson function
++ [X] change the get_ functions
++ [X] change the topicAndQuant function
++ [X] change the allQuant function
