@@ -32,11 +32,29 @@ data Day = Sat
           deriving (Read,Eq)
 
 -- the Topic data type consists of a Lesson, Time (synonym of Int) and a "Tests" (synonym of Int)
-data Topic = Topic Lesson Time Tests | Empty
+data Topic = Topic Lesson Time Tests | Empty deriving Eq
+
+
+justTopic :: Maybe Topic -> Topic
+justTopic (Just (Topic l ti te)) = Topic l ti te
+justTopic Nothing                = Empty
+
+combineTopics' :: Topic -> Topic -> Maybe Topic
+combineTopics' (Topic l1 ti1 te1) (Topic l2 ti2 te2)
+    | l1 == l2 = Just (Topic l1 newTi newTe)
+    | otherwise = Nothing
+
+  where newTi = ti1 + ti2
+        newTe = te1 + te2
 
 
 combineTopics :: Topic -> Topic -> Topic
-combineTopics = undefined
+combineTopics (Topic l1 ti1 te1) (Topic l2 ti2 te2)
+    | result == Nothing = Empty
+    | otherwise = justTopic result
+
+  where result = combineTopics' (Topic l1 ti1 te1) (Topic l2 ti2 te2)
+
 
 
 instance Show Topic where
@@ -49,9 +67,9 @@ instance Semigroup Topic where
   (<>) topic1 topic2 = combineTopics topic1 topic2
 
 
-instance Monoid Topic where
-  mempty = Empty
-  mappend = (<>)
+--instance Monoid Topic where
+--  mempty = Empty
+--  mappend = (<>)
 
 -- the Lex type class represents all a way to parse and convert all
 -- of the possible lexicons in a file
