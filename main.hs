@@ -275,13 +275,18 @@ combineAllLessons (x:xs)
 parsedToTopics :: [[String]] -> [Topic]
 parsedToTopics = combineAllLessons . lessonsAndData
 
---
-main :: IO ()
-main = do
-    file <- readFile "sample.txt"
-    let stream = cleanStream file
-    let parsed =  parseFile stream
-    let ready = parsedToTopics
-    mapM_ print ready
+pMain :: String -> [Topic]
+pMain stream = parsedToTopics $ parseFile $ cleanStream stream
 
+--pMain :: IO [String]
+--pMain = do
+--    file <- readFile "sample.txt"
+--
+--main :: IO [Topic]
+--main = do
+--    file <- readFile "sample.txt"
+--    let stream = cleanStream file
+--    let parsed =  parseFile stream
+--    let ready = parsedToTopics
+--    return ready
 
