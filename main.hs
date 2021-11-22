@@ -19,7 +19,7 @@ data Lesson = Dis
            | The
            | Ara
            | Lit
-           deriving (Read,Eq)
+           deriving (Read,Eq,Ord)
 
 -- new data type consisting of all the days in the week
 data Day = Sat
@@ -34,11 +34,18 @@ data Day = Sat
 -- the Topic data type consists of a Lesson, Time (synonym of Int) and a "Tests" (synonym of Int)
 data Topic = Topic Lesson Time Tests | Empty deriving Eq
 
-
+-- gets a maybe topic and returns a normal topic instead of Just Topic
 justTopic :: Maybe Topic -> Topic
 justTopic (Just (Topic l ti te)) = Topic l ti te
 justTopic Nothing                = Empty
 
+
+sameTopic :: Topic -> Topic -> Bool
+sameTopic (Topic l1 ti1 te1) (Topic l2 ti2 te2)
+    | l1 == l2 = True
+    | otherwise = False
+
+-- gets two Topics time and combines them if they have the same Lesson type
 combineTopics' :: Topic -> Topic -> Maybe Topic
 combineTopics' (Topic l1 ti1 te1) (Topic l2 ti2 te2)
     | l1 == l2 = Just (Topic l1 newTi newTe)
@@ -61,15 +68,18 @@ instance Show Topic where
   show (Topic lesson time tests) = mconcat [show lesson, ": ", "\n"
                                            , " ", "Time: ", show time, "\n"
                                            , " ", "Tests: ", show tests, "\n"]
+  show Empty = "Empty"
 
 
 instance Semigroup Topic where
+  (<>) topic Empty   = topic
+  (<>) Empty topic   = topic
   (<>) topic1 topic2 = combineTopics topic1 topic2
 
 
---instance Monoid Topic where
---  mempty = Empty
---  mappend = (<>)
+instance Monoid Topic where
+  mempty = Empty
+  mappend = (<>)
 
 -- the Lex type class represents all a way to parse and convert all
 -- of the possible lexicons in a file
@@ -128,6 +138,9 @@ lesson topic list = Topic topic times tests
 getTopic :: Topic -> String
 getTopic (Topic topic _ _) = show topic
 
+
+getLesson :: Topic -> Lesson
+getLesson (Topic l _ _) = l
 
 -- gets the Time (Int)
 getTime :: Topic -> Time
@@ -229,8 +242,8 @@ recTuple (x:xs) = (head x, last x) : recTuple xs
 -- gets rid of the parenthesis in "(90,23)" and returns "90,23"
 -- converts the lists into lists of Lessons and lists of (Time,Tests)
 -- then zips them together and returns them as a list
-lessonsAndData:: [[String]] -> [(Lesson,(Time,Tests))]
-lessonsAndData streams = zip lessons ts
+lessonsAndData' :: [[String]] -> [(Lesson,(Time,Tests))]
+lessonsAndData' streams = zip lessons ts
   where helperGet = map getNumbers'
         cleaned = map helperGet streams
         sToInt = read :: String -> Int
@@ -242,12 +255,33 @@ lessonsAndData streams = zip lessons ts
         ts = recTuple intT
 
 
-main :: IO ()
-main = undefined
---main = do
---    file <- readFile "sample.txt"
---    let stream = stListToSt $ topicsInDays file
---    let parsed = parseFile stream
---    mapM_ mapm' parsed
+lessonsAndData ::[[String]] -> [Topic]
+lessonsAndData streams = map makeStream' sortedStreams
+  where cleanedStreams = lessonsAndData' streams
+        sortedStreams = sortOn fst cleanedStreams
+        makeStreamOfT list = map makeStream' list
+        makeStream' (x,(y1,y2)) = Topic x y1 y2
+
+
+-- WARNING: this function can only work on a sorted list of Topics
+combineAllLessons :: [Topic] -> [Topic]
+combineAllLessons [] = []
+combineAllLessons (x:xs)
+    | xs == [] = [x]
+    | sameTopic x (head xs) = x <> head xs : combineAllLessons (tail xs)
+    | otherwise = x : combineAllLessons xs
+
+
+parsedToTopics :: [[String]] -> [Topic]
+parsedToTopics = combineAllLessons . lessonsAndData
+
 --
---  where mapm' = mapM_ putStrLn
+main :: IO ()
+main = do
+    file <- readFile "sample.txt"
+    let stream = cleanStream file
+    let parsed =  parseFile stream
+    let ready = parsedToTopics
+    mapM_ print ready
+
+

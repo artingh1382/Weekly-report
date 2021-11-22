@@ -7,14 +7,15 @@
 1. Semigroup type class: checks to see if the Lesson type is the same and if it is, the time and the tests values will be combined
 
 
-* IDEA features: [0/4]
+* IDEA features: [0/5]
 + [ ] using the Maybe type container to do safer computation
 + [ ] write the output into stdin and file
 + [ ] use the day data to show everyday in a beautiful way
 + [ ] use regex for pattern matching the days
++ [ ] Sorting them before returning them
 
 
-* TODO features: [8/8]
+* TODO features: [8/9]
 + [X] get rid of the prenthesis in "(n,m)"
 + [X] convert a string of "(n,m)" into a tuple of (n,m)
 + [X] make Topic an instance of Semigroup
@@ -23,6 +24,7 @@
 + [X] wrap stListToSt and topicsInDays into one function
 + [X] make topic an instance of Show type class
 + [X] a function to clean the output of combineTopics' function
++ [ ] make a function to sort the Topics by their name and then sum them together
 
 
 * TODO cleaning: [5/5]
