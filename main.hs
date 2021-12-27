@@ -32,21 +32,28 @@ data Day = Sat
           deriving (Read,Eq)
 
 -- the Topic data type consists of a Lesson, Time (synonym of Int) and a "Tests" (synonym of Int)
+-- TODO update the Topic Type to be an instance of the Either type class
 data Topic = Topic Lesson Time Tests | Empty deriving Eq
 
 -- gets a maybe topic and returns a normal topic instead of Just Topic
 justTopic :: Maybe Topic -> Topic
 justTopic (Just (Topic l ti te)) = Topic l ti te
 justTopic Nothing                = Empty
+justTopic (Just Empty)           = Empty
 
 
 sameTopic :: Topic -> Topic -> Bool
+sameTopic _ Empty = False
+sameTopic Empty _ = False
 sameTopic (Topic l1 ti1 te1) (Topic l2 ti2 te2)
     | l1 == l2 = True
     | otherwise = False
 
 -- gets two Topics time and combines them if they have the same Lesson type
 combineTopics' :: Topic -> Topic -> Maybe Topic
+combineTopics' Empty (Topic l ti te) = Just (Topic l ti te)
+combineTopics' (Topic l ti te) Empty = Just (Topic l ti te)
+combineTopics' Empty Empty = Nothing
 combineTopics' (Topic l1 ti1 te1) (Topic l2 ti2 te2)
     | l1 == l2 = Just (Topic l1 newTi newTe)
     | otherwise = Nothing
@@ -109,6 +116,7 @@ instance Show Day where
   show Fri = "Friday"
 
 
+-- the lexicon type class
 instance Lex Day where
   parse day = read day :: Day
   convert day = showLex day
@@ -194,7 +202,8 @@ topicsInDays day = map (splitOn "&") $ lines day
 
 -- concatenates all the strings in the list together
 stListToSt :: Foldable t => t [a] -> [a]
-stListToSt xs = foldr (++) [] xs
+stListToSt = concat
+--stListToSt = foldr (++) []
 
 -- gets a single string of topics, tuples and seperator then returnes
 -- a list of strings without the seperators
@@ -218,7 +227,7 @@ parseFile' stream
 -- gets a normal stream o
 parseFile :: [String] -> [[String]]
 parseFile stream = map words cleanStream
-  where cleanStream = map justString $ map parseFile' stream
+  where cleanStream = map (justString . parseFile') stream
 
 -- sees if the string starts with "(" and if it does, we know that it's a string of tuple.
 -- for example "(2,24)" so it reverses the tuple, gets rid of the closing parenthesis, reverses it again
@@ -251,23 +260,27 @@ lessonsAndData' streams = zip lessons ts
         stringLessons = map fst tuples
         lessons = map parse stringLessons :: [Lesson]
         stringT = map snd tuples
-        intT =  map (map sToInt) $ map (splitOn ",") stringT
+        intT =  map (map sToInt . splitOn ",") stringT
         ts = recTuple intT
 
 
-lessonsAndData ::[[String]] -> [Topic]
+-- takes a list of list of Strings, maily the filtered stream without
+-- the Days and seperators, an then returns a list of topic
+lessonsAndData :: [[String]] -> [Topic]
 lessonsAndData streams = map makeStream' sortedStreams
   where cleanedStreams = lessonsAndData' streams
         sortedStreams = sortOn fst cleanedStreams
         makeStreamOfT list = map makeStream' list
         makeStream' (x,(y1,y2)) = Topic x y1 y2
 
+splitByTopic :: [Topic] -> [Topic]
+splitByTopic = undefined
 
 -- WARNING: this function can only work on a sorted list of Topics
 combineAllLessons :: [Topic] -> [Topic]
 combineAllLessons [] = []
 combineAllLessons (x:xs)
-    | xs == [] = [x]
+    | null xs = [x]
     | sameTopic x (head xs) = x <> head xs : combineAllLessons (tail xs)
     | otherwise = x : combineAllLessons xs
 
@@ -278,15 +291,5 @@ parsedToTopics = combineAllLessons . lessonsAndData
 pMain :: String -> [Topic]
 pMain stream = parsedToTopics $ parseFile $ cleanStream stream
 
---pMain :: IO [String]
---pMain = do
---    file <- readFile "sample.txt"
---
---main :: IO [Topic]
---main = do
---    file <- readFile "sample.txt"
---    let stream = cleanStream file
---    let parsed =  parseFile stream
---    let ready = parsedToTopics
---    return ready
-
+main :: IO ()
+main = undefined
